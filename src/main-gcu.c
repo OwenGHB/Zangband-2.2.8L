@@ -904,7 +904,7 @@ static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
 #endif
 
 		/* Draw a normal character */
-		waddch(td->win, s[i]);
+		waddch(td->win, (byte)s[i]);
 	}
 
 	/* Success */
@@ -979,6 +979,19 @@ errr init_gcu(int argc, char *argv[])
 	/* Extract the normal keymap */
 	keymap_norm_prepare();
 
+	bool use_big_screen = FALSE;
+
+	/* Parse args */
+	for (i = 1; i < argc; i++)
+	{
+		if (prefix(argv[i], "-b"))
+		{
+			use_big_screen = TRUE;
+			continue;
+		}
+
+		plog_fmt("Ignoring option: %s", argv[i]);
+	}
 
 #if defined(USG)
 	/* Initialize for USG Unix */
@@ -1091,64 +1104,88 @@ errr init_gcu(int argc, char *argv[])
 
 	/*** Now prepare the term(s) ***/
 
-	/* Create several terms */
-	for (i = 0; i < num_term; i++)
+	/* Big screen -- one big term */
+	if (use_big_screen)
 	{
-		int rows, cols, y, x;
-
-		/* Decide on size and position */
-		switch (i)
-		{
-			/* Upper left */
-			case 0:
-				rows = 24;
-				cols = 80;
-				y = x = 0;
-				break;
-
-			/* Lower left */
-			case 1:
-				rows = LINES - 25;
-				cols = 80;
-				y = 25;
-				x = 0;
-				break;
-
-			/* Upper right */
-			case 2:
-				rows = 24;
-				cols = COLS - 81;
-				y = 0;
-				x = 81;
-				break;
-
-			/* Lower right */
-			case 3:
-				rows = LINES - 25;
-				cols = COLS - 81;
-				y = 25;
-				x = 81;
-				break;
-
-			/* XXX */
-			default:
-				rows = cols = y = x = 0;
-				break;
-		}
-
-		/* Skip non-existant windows */
-		if (rows <= 0 || cols <= 0) continue;
-
 		/* Create a term */
-		term_data_init_gcu(&data[next_win], rows, cols, y, x);
+		term_data_init_gcu(&data[0], LINES-1, COLS-1, 0, 0);
 
 		/* Remember the term */
-		angband_term[next_win] = &data[next_win].t;
-
-		/* One more window */
-		next_win++;
+		angband_term[0] = &data[0].t;
 	}
 
+	/* No big screen -- create as many term windows as possible */
+	else
+	{
+		/* Create several terms */
+		for (i = 0; i < num_term; i++)
+		{
+			int rows, cols, y, x;
+
+			/* Decide on size and position */
+			switch (i)
+			{
+				/* Upper left */
+				case 0:
+				{
+					rows = 24;
+					cols = 80;
+					y = x = 0;
+					break;
+				}
+
+				/* Lower left */
+				case 1:
+				{
+					rows = LINES - 25;
+					cols = 80;
+					y = 25;
+					x = 0;
+					break;
+				}
+
+				/* Upper right */
+				case 2:
+				{
+					rows = 24;
+					cols = COLS - 81;
+					y = 0;
+					x = 81;
+					break;
+				}
+
+				/* Lower right */
+				case 3:
+				{
+					rows = LINES - 25;
+					cols = COLS - 81;
+					y = 25;
+					x = 81;
+					break;
+				}
+
+				/* XXX */
+				default:
+				{
+					rows = cols = y = x = 0;
+					break;
+				}
+			}
+
+			/* Skip non-existant windows */
+			if (rows <= 0 || cols <= 0) continue;
+
+			/* Create a term */
+			term_data_init_gcu(&data[next_win], rows, cols, y, x);
+
+			/* Remember the term */
+			angband_term[next_win] = &data[next_win].t;
+
+			/* One more window */
+			next_win++;
+		}
+	}
+	
 	/* Activate the "Angband" window screen */
 	Term_activate(&data[0].t);
 
