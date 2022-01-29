@@ -478,7 +478,7 @@ static cptr image_monster_hack = \
  * Hack -- Legal monster codes for IBM pseudo-graphics
  */
 static cptr image_monster_hack_ibm = \
-"ƒ„…†‡ˆ‰ŠŽ‘’•–™š›œžŸ¡¥¨©ª¯°²³´µ¶·¸¾ÇÌÑÔÕ×ÙÝÞßàáâãåèéæêëìíîïðñòóôõö÷øùúûüýþ";
+"\83\84\85\86\87\88\89\8A\8D\8E\8F\90\91\92\95\96\99\9A\9B\9C\9D\9E\9F\A1\A5\A8\A9\AA\AF\B0\B2\B3\B4\B5\B6\B7\B8\BE\C7\CC\D1\D4\D5\D7\D9\DD\DE\DF\E0\E1\E2\E3\E5\E8\E9\E6\EA\EB\EC\ED\EE\EF\F0\F1\F2\F3\F4\F5\F6\F7\F8\F9\FA\FB\FC\FD\FE";
 
 
 /*
@@ -526,7 +526,7 @@ static cptr image_object_hack = \
 "?/|\\\"!$()_-=[]{},~";
 
 static cptr image_object_hack_ibm = \
-"€“”—¤¦«­®º»¼½ÀÁÂÃÄÈÉÊËÍÎÓÚç";
+"\80\81\93\94\97\A4\A6\AB\AD\AE\BA\BB\BC\BD\C0\C1\C2\C3\C4\C8\C9\CA\CB\CD\CE\D3\DA\E7";
 
 /*
  * Mega-Hack -- Hallucinatory object
@@ -2011,6 +2011,7 @@ void display_map(int *cy, int *cx)
 void do_cmd_view_map(void)
 {
 	int cy, cx;
+	cptr prompt = "Hit any key to continue";
 
 
 	/* Save the screen */
@@ -2028,11 +2029,11 @@ void do_cmd_view_map(void)
 	/* Display the map */
 	display_map(&cy, &cx);
 
-	/* Wait for it */
-	put_str("Hit any key to continue", 23, 23);
+	/* Show the prompt */
+	put_str(prompt, Term->hgt - 1, Term->wid / 2 - strlen(prompt) / 2);
 
 	/* Hilite the player */
-	move_cursor(cy, cx);
+	Term_gotoxy(cx, cy);
 
 	/* Get any key */
 	inkey();

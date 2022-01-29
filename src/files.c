@@ -3094,6 +3094,8 @@ bool show_file(cptr name, cptr what, int line, int mode)
 	/* Tags for in-file references */
 	int tags[62];
 
+	int wid, hgt;
+
 	/* Wipe finder */
 	strcpy(finder, "");
 
@@ -3108,6 +3110,9 @@ bool show_file(cptr name, cptr what, int line, int mode)
 	{
 		hook[i][0] = '\0';
 	}
+	
+	/* Get size */
+	Term_get_size(&wid, &hgt);
 
 	/* Copy the filename */
 	strcpy(filename, name);
@@ -3268,8 +3273,8 @@ bool show_file(cptr name, cptr what, int line, int mode)
 			next++;
 		}
 
-		/* Dump the next 20 lines of the file */
-		for (i = 0; i < 20; )
+		/* Dump the next lines of the file */
+		for (i = 0; i < hgt - 4; )
 		{
 			/* Hack -- track the "first" line */
 			if (!i) line = next;
@@ -3341,21 +3346,21 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		if (menu)
 		{
 			/* Wait for it */
-			prt("[Press a Number, or ESC to exit.]", 23, 0);
+			prt("[Press a Number, or ESC to exit.]", hgt - 1, 0);
 		}
 
 		/* Prompt -- small files */
-		else if (size <= 20)
+		else if (size <= hgt - 4)
 		{
 			/* Wait for it */
-			prt("[Press ESC to exit.]", 23, 0);
+			prt("[Press ESC to exit.]", hgt - 1, 0);
 		}
 
 		/* Prompt -- large files */
 		else
 		{
 			/* Wait for it */
-			prt("[Press Return, Space, -, =, /, or ESC to exit.]", 23, 0);
+			prt("[Press Return, Space, -, =, /, or ESC to exit.]", hgt - 1, 0);
 		}
 
 		/* Get a keypress */
@@ -3376,7 +3381,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		if (k == '=')
 		{
 			/* Get "shower" */
-			prt("Show: ", 23, 0);
+			prt("Show: ", hgt - 1, 0);
 			(void)askfor_aux(shower, 80);
 		}
 
@@ -3384,7 +3389,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		if (k == '/')
 		{
 			/* Get "finder" */
-			prt("Find: ", 23, 0);
+			prt("Find: ", hgt - 1, 0);
 
 			if (askfor_aux(finder, 80))
 			{
@@ -3408,7 +3413,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		if (k == '#')
 		{
 			char tmp[81];
-			prt("Goto Line: ", 23, 0);
+			prt("Goto Line: ", hgt - 1, 0);
 			strcpy(tmp, "0");
 
 			if (askfor_aux(tmp, 80))
@@ -3421,7 +3426,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		if (k == '%')
 		{
 			char tmp[81];
-			prt("Goto File: ", 23, 0);
+			prt("Goto File: ", hgt - 1, 0);
 			strcpy(tmp, "help.hlp");
 
 			if (askfor_aux(tmp, 80))
@@ -3433,7 +3438,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		/* Hack -- Allow backing up */
 		if (k == '-')
 		{
-			line = line - 10;
+			line = line - ((hgt - 4) / 2);
 			if (line < 0) line = 0;
 		}
 
@@ -3446,7 +3451,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		/* Advance one page */
 		if (k == ' ')
 		{
-			line = line + 20;
+			line = line + (hgt - 4);
 		}
 
 		/* Recurse on numbers */
